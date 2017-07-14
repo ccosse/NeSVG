@@ -2,33 +2,40 @@
 <head>
 <meta charset="utf-8">
 <title>NeSVG</title>
-<link rel="stylesheet" href="../CST/static/colorcfg/css/main.css">
+<link rel="stylesheet" href="/static/CST/static/CST/css/main.css">
+<link rel="stylesheet" href="/static/CST/static/CST/css/colorcfg.css">
+<link rel="stylesheet" href="/static/CST/static/CST/css/colorcfg_slider.css">
+<link rel="stylesheet" href="/static/NeSVG/static/nesvg/css/main.css">
+<link rel="stylesheet" href="/static/NeSVG/static/nesvg/css/nesvg.css">
 
-<link rel="stylesheet" href="static/nesvg/css/main.css">
-<link rel="stylesheet" href="static/nesvg/css/nesvg.css">
-<script src="static/nesvg/js/d3.v4.min.js"></script>
-<script src="static/nesvg/js/nesvg.js"></script>
+<script src="/static/NeSVG/static/nesvg/js/d3.v4.min.js"></script>
+
+<script src="/static/CST/static/CST/js/colorcfg_data.js"></script>
+<script src="/static/CST/static/CST/js/colorcfg.js"></script>
+
+<script src="/static/NeSVG/static/nesvg/js/nesvg.js"></script>
 <script>
 //	console.log=function(msg){}
-	var doneCB=function(e){
+	var nesvg_doneCB=function(e){
 		d3.select('#nesvg_main').style('display','none');
 //		document.getElementById("bg").innerHTML+=colorcfg.getColorsList();
 	}
-	var showCB=function(e){
-		nesvg.show(doneCB);
+	var nesvg_showCB=function(e){
+		console.log("calling nesvg.show")
+		nesvg.show(nesvg_doneCB);
 	}
-	var init=function(){
-		nesvg=new NeSVG(doneCB);
-		window.onresize();
+	var nesvg_init=function(){
+		nesvg=new NeSVG(nesvg_doneCB);
+		window.nesvg_onresize();
 	}
-	window.onresize=function(){
+	window.nesvg_onresize=function(){
 //		nesvg.recenter();
 	}
 </script>
 </head>
-<body onload='init()'>
+<body onload='nesvg_init()'>
 	<div id="bg" class="bg">
-		<button id="showB" onclick="showCB()">NeSVG</button>
+		<button id="showB" onclick="nesvg_showCB()">NeSVG</button>
 		<br><br>
 	</div>
 </body>
