@@ -1,0 +1,35 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>NeSVG</title>
+<link rel="stylesheet" href="../CST/static/colorcfg/css/main.css">
+
+<link rel="stylesheet" href="static/nesvg/css/main.css">
+<link rel="stylesheet" href="static/nesvg/css/nesvg.css">
+<script src="static/nesvg/js/d3.v4.min.js"></script>
+<script src="static/nesvg/js/nesvg.js"></script>
+<script>
+//	console.log=function(msg){}
+	var doneCB=function(e){
+		d3.select('#nesvg_main').style('display','none');
+//		document.getElementById("bg").innerHTML+=colorcfg.getColorsList();
+	}
+	var showCB=function(e){
+		nesvg.show(doneCB);
+	}
+	var init=function(){
+		nesvg=new NeSVG(doneCB);
+		window.onresize();
+	}
+	window.onresize=function(){
+//		nesvg.recenter();
+	}
+</script>
+</head>
+<body onload='init()'>
+	<div id="bg" class="bg">
+		<button id="showB" onclick="showCB()">NeSVG</button>
+		<br><br>
+	</div>
+</body>
+</html>

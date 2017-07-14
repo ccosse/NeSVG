@@ -1,0 +1,28 @@
+body, html {
+    height: 100%;
+    color: #111;
+    font-family: Open Sans, Helvetica, Arial;
+    box-sizing: border-box;
+		text-align:center;
+}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: inherit;
+}
+.bg {
+    height: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+		text-align: center;
+}
+#showB {
+	position:relative;
+	padding:20px 50px;
+	border-radius: 20px;
+	background-color: darkorange;
+	color:white;
+	font-size:36pt;
+	top:100px;
+}
