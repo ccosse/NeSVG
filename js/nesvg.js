@@ -10,6 +10,7 @@ var NeSVG=function(doneCB){
 //			MAYBE_SOMEBODY.update_styles();
 		}
 	}
+
 	me.show=function(){
 		console.log("nesvg.show")
 		window.clearTimeout(window.lastTimeout);
@@ -39,7 +40,7 @@ var NeSVG=function(doneCB){
 	};
 	//https://stackoverflow.com/questions/7374911/reading-file-with-xmlhttprequest-results-in-error-console-entry
 	xhttp.overrideMimeType('text/plain');
-	xhttp.open("GET", "/static/NeSVG/static/nesvg/js/base.html", true);//test for localhost? ./static won't work on server.
+	xhttp.open("GET", "/static/NeSVG/js/base.html", true);//test for localhost? ./static won't work on server.
 	xhttp.send();
 
 	cst=new ColorCfg();
@@ -52,6 +53,42 @@ var NeSVG=function(doneCB){
 		cst.show(me.cstCB);
 	}
 
+	me.loadXML=function(fname,panel_id){
+		d3.xml(fname).mimeType("image/svg+xml").get(function(error, xml) {
+			if (error) throw error;
+			var url=xml.firstChild.baseURI;
+			var filename = url.substring(url.lastIndexOf('/')+1);
+			var panel=document.getElementById(panel_id);
+			panel.appendChild(xml.documentElement);
+		});
+	}
+	me.mkD3=function(struct,panel_id){
+		console.log('mkD3',panel_id);
+		var svg = d3.select(panel_id)
+			.append("svg")
+				.attr("id",struct[0]['id'])
+				.attr("width", struct[0]['width'])
+				.attr("height", struct[0]['height'])
+				.call(struct[1]['filter'][0].init)
+				.call(struct[1]['filter'][1].init)
+				.call(struct[1]['filter'][2].init)
+				.call(struct[2]['filter'][0].init)
+				.call(struct[2]['filter'][1].init)
+				.call(struct[2]['filter'][2].init)
+				;
+
+		for(var pidx=1;pidx<struct.length;pidx++){
+		for(var lidx=0;lidx<struct[pidx]['color'].length;lidx++){
+			svg.append("path")
+				.attr("d",struct[pidx]['d'])
+				.attr("class","outer")
+				.style("stroke",struct[pidx]['color'][lidx]).style("fill",struct[pidx]['fill'][lidx]).style("stroke-width",struct[pidx]['stroke-width'][lidx]+"px")
+				.attr("transform",struct[0]['transform'])
+				.style("filter", struct[pidx]['filter'])
+				;
+		}}
+
+	}
 
 	return me;
 }
