@@ -3,6 +3,8 @@ var NeSVG=function(doneCB){
 	me.swatch_pts=null;
 	me.widget_prefixes=[];
 	me.last_struct=null;
+	me.current_pidx=null;
+	me.current_lidx=null;
 	me.doneCB=null;
 
 	if(doneCB)
@@ -124,6 +126,14 @@ var NeSVG=function(doneCB){
 
 		me.swatch_pts=d3.select(".nesvg_widget_svg").append("g");
 		me.cstCB();
+
+		d3.select("#nesvg_path_button")
+			.on('mousedown',function(){console.log("click");nesvg.cyclePath(common_id_prefix);});
+
+		d3.select("#nesvg_layer_button")
+			.on('mousedown',function(){nesvg.cycleLayer(common_id_prefix);});
+
+		console.log("callbacks set");
 /*
 		d3.select("#"+common_id_prefix+"_6")
 			.on('mousedown',function(){me.cycleRGB(common_id_prefix);});
@@ -131,7 +141,20 @@ var NeSVG=function(doneCB){
 		me.update(common_id_prefix);//now that we've got a common_id_prefix we can update
 */
 	}
-
+	me.cyclePath=function(){
+		console.log('nesvg.cyclePath');
+		me.current_pidx+=1;
+		if(me.current_pidx >= me.last_struct.length)
+			me.current_pidx=1;
+		me.nesvgInfo();
+	}
+	me.cycleLayer=function(){
+		console.log('nesvg.cycleLayer');
+		me.current_lidx+=1;
+		if(me.current_lidx >= me.last_struct[me.current_pidx]['color'].length)
+			me.current_lidx=0;
+		me.nesvgInfo();
+	}
 	me.loadXML=function(fname,panel_id){
 		d3.xml(fname).mimeType("image/svg+xml").get(function(error, xml) {
 			if (error) throw error;
@@ -149,13 +172,25 @@ var NeSVG=function(doneCB){
 				.attr("id",struct[0]['id'])
 				.attr("width", struct[0]['width'])
 				.attr("height", struct[0]['height'])
-				.call(struct[1]['filter'][0].init)
-				.call(struct[1]['filter'][1].init)
-				.call(struct[1]['filter'][2].init)
-				.call(struct[2]['filter'][0].init)
-				.call(struct[2]['filter'][1].init)
-				.call(struct[2]['filter'][2].init)
+				.call(struct[1]['filters'][0].init)
+				.call(struct[1]['filters'][1].init)
+				.call(struct[1]['filters'][2].init)
+				.call(struct[2]['filters'][0].init)
+				.call(struct[2]['filters'][1].init)
+				.call(struct[2]['filters'][2].init)
 				;
+			svg.append("rect")
+					.attr("x",0)
+					.attr("y",0)
+					.attr("width",struct[0]['width'])
+					.attr("height",struct[0]['height'])
+					.style("fill",struct[0]['fill'])
+
+			if(panel_id=="#nesvg_stage"){
+				svg
+				.style("position","relative")
+				.style("top",parseInt(200-struct[0]['height']/2)+"px")
+			}
 
 		//The following double loop (path,layer) becomes the 2 round selection buttons
 		//THe upper cycles through paths(pidx), the lower button through layers of the same
@@ -167,10 +202,44 @@ var NeSVG=function(doneCB){
 				.attr("class","outer")
 				.style("stroke",struct[pidx]['color'][lidx]).style("fill",struct[pidx]['fill'][lidx]).style("stroke-width",struct[pidx]['stroke-width'][lidx]+"px")
 				.attr("transform",struct[0]['transform'])
-				.style("filter", struct[pidx]['filter'])
+				.style("filter", struct[pidx]['filter_strs'][lidx])
 				;
 		}}
+		me.current_pidx=1;
+		me.current_lidx=0;
+		me.nesvgInfo();
+	}
 
+	me.nesvgInfo=function(){
+		var html1="";
+		html1+="id "+me.last_struct[0]['id']+"<br>";
+		html1+="width "+me.last_struct[0]['width']+"<br>";
+		html1+="height "+me.last_struct[0]['height']+"<br>";
+		html1+="paths "+(me.last_struct.length-1)+"<br>";
+		var nlyrs=0;
+		for(var idx=1;idx<me.last_struct.length;idx++)
+			nlyrs+=me.last_struct[idx]['color'].length;
+		html1+="layers "+nlyrs+"<br>";
+		html1+="fill "+me.last_struct[0]['fill']+"<br>";
+		html1+=me.last_struct[0]['transform'].split(" ")[0]+"<br>";
+		html1+=me.last_struct[0]['transform'].split(" ")[1];
+		d3.select("#nesvg_info1").html(html1);
+
+		var html2="";
+		html2+="pidx "+me.current_pidx+"<br>";
+		html2+="approx points "+parseInt(me.last_struct[me.current_pidx]['d'].split(" ").length/2)+"<br>";
+		html2+="layers "+me.last_struct[me.current_pidx]['color'].length+"<br>";
+		d3.select("#nesvg_info2").html(html2);
+
+		var html3="";
+		html3+="lidx "+me.current_lidx+"<br>";
+		html3+="color "+me.last_struct[me.current_pidx]['color'][me.current_lidx]+"<br>";
+		html3+="fill "+me.last_struct[me.current_pidx]['fill'][me.current_lidx]+"<br>";
+		html3+="stroke-width "+me.last_struct[me.current_pidx]['stroke-width'][me.current_lidx]+"<br>";
+		html3+="filter str "+me.last_struct[me.current_pidx]['filter_strs'][me.current_lidx]+"<br>";
+		html3+="filter rgb "+me.last_struct[me.current_pidx]['filters'][me.current_lidx].rgb+"<br>";
+		html3+="filter sigma "+me.last_struct[me.current_pidx]['filters'][me.current_lidx].stdDeviation+"<br>";
+		d3.select("#nesvg_info3").html(html3);
 	}
 
 	return me;

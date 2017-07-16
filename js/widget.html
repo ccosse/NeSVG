@@ -2,6 +2,20 @@
 	<tbody>
 		<tr>
 			<td>
+				<div id="nesvg_palette_div">
+				<svg class='nesvgcfg_new nesvg_widget_svg'></svg>
+				</div>
+			</td>
+			<td colSpan='2'>
+				<button class="nesvg_circle ccbutton" onclick="nesvg.pick3CB()">CST</button>
+				<button class="nesvg_circle ccbutton" onclick="nesvg.resetCB()">&ltcode/&gt</button>
+			</td>
+			<td></td>
+		</tr>
+
+
+		<tr>
+			<td>
 				<div id="nesvg_stage" class="nesvg_stage">
 <!--
 				<svg class='nesvgcfg_new nesvg_swatch_svg'></svg>
@@ -20,18 +34,6 @@
 			</td>
 		</tr>
 
-		<tr>
-			<td>
-				<div id="nesvg_palette_div">
-				<svg class='nesvgcfg_new nesvg_widget_svg'></svg>
-				</div>
-			</td>
-			<td colSpan='2'>
-				<button class='nesvgcfg_new ccbutton'>Path</button>
-				<button class='nesvgcfg_new ccbutton'>Layer</button>
-			</td>
-			<td></td>
-		</tr>
 
 		<tr>
 			<td>
@@ -46,5 +48,25 @@
 			<td></td>
 			<td></td>
 		</tr>
+
+		<tr><td>
+			<div id="nesvg_info" class="nesvg_info">
+				<table width="100%">
+					<tr>
+						<td class="nesvg_info_td"><fieldset><legend>Current SVG</legend><div id="nesvg_info1"></div></fieldset></td>
+						<td class="nesvg_info_td"><fieldset><legend>Current Path</legend><div id="nesvg_info2"></div></fieldset></td>
+						<td class="nesvg_info_td"><fieldset><legend>Current Layer</legend><div id="nesvg_info3"></div></fieldset></td>
+					</tr>
+				</table>
+			</div>
+		</td>
+		<td colSpan='2'>
+			<button id="nesvg_path_button" class='nesvgcfg nesvg_circle ccbutton'>Path</button>
+			<button id="nesvg_layer_button" class='nesvgcfg nesvg_circle ccbutton'>Layer</button>
+		</td>
+		<td></td>
+		</tr>
+
+
 	</tbody>
 </table>
