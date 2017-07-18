@@ -27,15 +27,15 @@
 					<input type='range' id="svg_height_slider" title="SVG Height" class='vslide2a red' min='1' max='400' step='1' value='200'/>
 				</div>
 				<div class='nesvgcfg_wrapper rotate'>
-					<input type='range' id="dy_slider" title="dy offset" class='vslide2b red' min='-100' max='1500' step='1' value='0'/>
+					<input type='range' id="dy_slider" title="dy offset" class='vslide2b red' min='-1500' max='1500' step='1' value='0'/>
 				</div>
 			</td>
 			<td class='vslide_cell'>
 				<div class='nesvgcfg_wrapper rotate'>
-					<input type='range' id="scale_slider" title="SVG Scale" class='vslide2a red' min='1' max='100' step='1' value='18'/>
+					<input type='range' id="scale_x_slider" title="SVG Scale X" class='vslide2a red' min='-100' max='100' step='1' value='18'/>
 				</div>
 				<div class='nesvgcfg_wrapper rotate'>
-					<input type='range' id="sigma_slider" title="Blur Filter Sigma" class='vslide2b red' min='1' max='50' step='1' value='20'/>
+					<input type='range' id="scale_y_slider" title="SVG Scale Y" class='vslide2b red' min='-100' max='100' step='1' value='18'/>
 				</div>
  			</td>
 		</tr>
@@ -64,6 +64,7 @@
 			</div>
 		</td>
 		<td colSpan='2'>
+			<button id="nesvg_svg_button" class='nesvgcfg nesvg_circle ccbutton'>SVG</button>
 			<button id="nesvg_path_button" class='nesvgcfg nesvg_circle ccbutton'>Path</button>
 			<button id="nesvg_layer_button" class='nesvgcfg nesvg_circle ccbutton'>Layer</button>
 		</td>
