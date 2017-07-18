@@ -7,8 +7,8 @@
 				</div>
 			</td>
 			<td colSpan='2'>
-				<button class="nesvg_circle ccbutton" onclick="nesvg.pick3CB()">CST</button>
-				<button class="nesvg_circle ccbutton" onclick="nesvg.resetCB()">&ltcode/&gt</button>
+				<button class="nesvg_circle ccbutton" title="Color Sequence Tool" onclick="nesvg.pick3CB()">CST</button>
+				<button class="nesvg_circle ccbutton" title="Copy Code" onclick="nesvg.resetCB()">&ltcode/&gt</button>
 			</td>
 			<td></td>
 		</tr>
@@ -24,24 +24,29 @@
 			</td>
 			<td class='vslide_cell'>
 				<div class='nesvgcfg_wrapper rotate'>
-					<input type='range' class='vslide red' min='1' max='100' step='1' value='102'/>
+					<input type='range' id="svg_height_slider" title="SVG Height" class='vslide2a red' min='1' max='400' step='1' value='200'/>
+				</div>
+				<div class='nesvgcfg_wrapper rotate'>
+					<input type='range' id="dy_slider" title="dy offset" class='vslide2b red' min='-100' max='1500' step='1' value='0'/>
 				</div>
 			</td>
 			<td class='vslide_cell'>
 				<div class='nesvgcfg_wrapper rotate'>
-					<input type='range' class='vslide red' min='1' max='25' step='1'/>
+					<input type='range' id="scale_slider" title="SVG Scale" class='vslide2a red' min='1' max='100' step='1' value='18'/>
 				</div>
-			</td>
+				<div class='nesvgcfg_wrapper rotate'>
+					<input type='range' id="sigma_slider" title="Blur Filter Sigma" class='vslide2b red' min='1' max='50' step='1' value='20'/>
+				</div>
+ 			</td>
 		</tr>
 
 
 		<tr>
 			<td>
 				<table width='100%'>
-
-					<input type='range' style='width:100%' class='nesvgcfg_new hslide red' min='1' max='255' step='1'/>
-					</td></tr><tr><td>
-					<input type='range' style='width:100%' class='nesvgcfg_new hslide red' min='1' max='120' step='1'/>
+					<tr><td>
+					<input type='range' id="svg_width_slider" title="SVG Width" style='width:40%' class='nesvgcfg hslide red' min='1' max='800' step='1'/>
+					<input type='range' id="dx_slider" title="dx offset" style='width:40%' class='nesvgcfg hslide red' min='-100' max='1500' step='1'/>
 					</td></tr>
 				</table>
 			</td>
@@ -51,13 +56,11 @@
 
 		<tr><td>
 			<div id="nesvg_info" class="nesvg_info">
-				<table width="100%">
-					<tr>
-						<td class="nesvg_info_td"><fieldset><legend>Current SVG</legend><div id="nesvg_info1"></div></fieldset></td>
-						<td class="nesvg_info_td"><fieldset><legend>Current Path</legend><div id="nesvg_info2"></div></fieldset></td>
-						<td class="nesvg_info_td"><fieldset><legend>Current Layer</legend><div id="nesvg_info3"></div></fieldset></td>
-					</tr>
-				</table>
+				<table><tr>
+				<td><fieldset><legend>Current SVG</legend><div id="nesvg_info1"></div></fieldset></td>
+				<td><fieldset><legend>Current Path</legend><div id="nesvg_info2"></div></fieldset></td>
+				<td><fieldset><legend>Current Layer</legend><div id="nesvg_info3"></div></fieldset></td>
+				</tr></table>
 			</div>
 		</td>
 		<td colSpan='2'>
