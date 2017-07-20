@@ -8,7 +8,7 @@
 			</td>
 			<td colSpan='2'>
 				<button class="nesvg_circle ccbutton" title="Color Sequence Tool" onclick="nesvg.pick3CB()">CST</button>
-				<button class="nesvg_circle ccbutton" title="Copy Code" onclick="nesvg.resetCB()">&ltcode/&gt</button>
+				<button class="nesvg_circle ccbutton" title="Copy Code" onclick="nesvg.codeCB()">code</button>
 			</td>
 			<td></td>
 		</tr>
@@ -58,8 +58,8 @@
 			<div id="nesvg_info" class="nesvg_info">
 				<table><tr>
 				<td><fieldset><legend>Current SVG</legend><div id="nesvg_info1"></div></fieldset></td>
-				<td><fieldset><legend>Current Path</legend><div id="nesvg_info2"></div></fieldset></td>
-				<td><fieldset><legend>Current Layer</legend><div id="nesvg_info3"></div></fieldset></td>
+				<td><fieldset><legend>Current Path <img id='nesvg_path_checkbox' class='nesvg_checkbox' src='static/NeTux/img/checkbox-1.png'></legend><div id="nesvg_info2"></div></fieldset></td>
+				<td><fieldset><legend>Current Layer <img id='nesvg_layers_checkbox' class='nesvg_checkbox' src='static/NeTux/img/checkbox-1.png'></legend><div id="nesvg_info3"></div></fieldset></td>
 				</tr></table>
 			</div>
 		</td>

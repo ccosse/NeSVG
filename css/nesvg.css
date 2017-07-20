@@ -1,4 +1,4 @@
-#doneB {
+.doneB {
   display: block;
   position: fixed;
   bottom: 40px;
@@ -12,7 +12,7 @@
   padding: 15px;
   border-radius: 10px;
 }
-#doneB:hover {
+.doneB:hover {
   background-color: #DC0;
 }
 .floatleft{float:left;}

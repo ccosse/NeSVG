@@ -5,6 +5,10 @@ var NeSVG=function(doneCB){
 	me.struct_idx=null;
 	me.last_struct=null;
 
+	//for layer visiblilty toggles:
+	me.pviz=[];//path_viz
+	me.viz=[];//layers_viz
+
 	me.swatch_pts=null;
 	me.widget_prefixes=[];
 	me.current_pidx=null;
@@ -87,13 +91,17 @@ var NeSVG=function(doneCB){
 				.attr("y", function(d,i) { return dx*parseInt(i/NR) })
 				.on("click",function(d){console.log(d);me.current_color=d;})
 			.append("title")
-				.html(function(d){return d;})
+				.html(function(d){return color_convert.to_hex(d)+"&#013;"+d;})
 			;
 
 	}
 	me.pick3CB=function(){
 		console.log("nesvg.pick3CB")
 		cst.show(me.cstCB);
+	}
+	me.codeCB=function(){
+		console.log("nesvg.codeCB");
+		alert(JSON.stringify(me.last_struct));
 	}
 	me.newSequenceCB=function(){
 		var xhttp = new XMLHttpRequest();
@@ -188,14 +196,26 @@ var NeSVG=function(doneCB){
 				me.last_struct[0]['width']=ival;
 				me.mkD3(me.last_struct,"#nesvg_stage",true)
 			});
-
-		console.log("callbacks set");
-/*
-		d3.select("#"+common_id_prefix+"_6")
-			.on('mousedown',function(){me.cycleRGB(common_id_prefix);});
-
-		me.update(common_id_prefix);//now that we've got a common_id_prefix we can update
-*/
+		d3.select("#nesvg_path_checkbox")
+			.on('click',function(){
+				if(me.pviz[me.current_pidx]){
+					me.pviz[me.current_pidx]=false;
+				}
+				else{
+					me.pviz[me.current_pidx]=true;
+				}
+				me.mkD3(me.last_struct,"#nesvg_stage",1);
+			});
+		d3.select("#nesvg_layers_checkbox")
+			.on('click',function(){
+				if(me.viz[me.current_pidx][me.current_lidx]){
+					me.viz[me.current_pidx][me.current_lidx]=false;
+				}
+				else{
+					me.viz[me.current_pidx][me.current_lidx]=true;
+				}
+				me.mkD3(me.last_struct,"#nesvg_stage",1);
+			});
 	}
 	me.cycleSVG=function(){
 		me.struct_idx+=1;
@@ -236,11 +256,29 @@ var NeSVG=function(doneCB){
 				me.current_lidx=0;
 		}
 		console.log('mkD3',panel_id);
+
+
+		//create single interactive filter:
+		var nesvg_filters=[];
+		for(var pidx=1;pidx<struct.length;pidx++){
+			for(var sidx=0;sidx<struct[pidx]['fspecs'].length;sidx++){
+				var spec=struct[pidx]['fspecs'][sidx];
+				d3.selectAll("#"+spec['name']).delete;
+				nesvg_filters.push(glow(spec['name']).rgb(spec['color']).stdDeviation(spec['sigma']));
+			}
+		}
+
 		var svg = d3.select(panel_id).html('')
 			.append("svg")
 				.attr("id",struct[0]['id'])
 				.attr("width", struct[0]['width'])
-				.attr("height", struct[0]['height'])
+				.attr("height", struct[0]['height']);
+
+			for(var fidx=0;fidx<nesvg_filters.length;fidx++){
+				svg.call(nesvg_filters[fidx].init);
+			}
+
+/*
 				.call(struct[1]['filters'][0].init)
 				.call(struct[1]['filters'][1].init)
 				.call(struct[1]['filters'][2].init)
@@ -248,12 +286,14 @@ var NeSVG=function(doneCB){
 				.call(struct[2]['filters'][1].init)
 				.call(struct[2]['filters'][2].init)
 				;
+*/
 			svg.append("rect")
 					.attr("x",0)
 					.attr("y",0)
 					.attr("width",struct[0]['width'])
 					.attr("height",struct[0]['height'])
 					.style("fill",struct[0]['fill'])
+					.style("stroke",'#0000');
 
 			if(panel_id=="#nesvg_stage"){
 				svg
@@ -264,18 +304,36 @@ var NeSVG=function(doneCB){
 		//The following double loop (path,layer) becomes the 2 round selection buttons
 		//THe upper cycles through paths(pidx), the lower button through layers of the same
 		//path but different parameters.
+		var tmp_viz=[];//just fill and use or toss (vs asking always)
+		tmp_viz.push(['this is a dummy so can use pidx starting at 1']);
+		var tmp_pviz=[];
+		tmp_pviz.push(['this is a dummy so can use pidx starting at 1']);
+
 		for(var pidx=1;pidx<struct.length;pidx++){
+			tmp_pviz.push(true)
+			tmp_viz.push([])
+			if(preserve && !me.pviz[pidx])continue;
 			var common_xform="translate("+struct[pidx]['dx']+","+struct[pidx]['dy']+") scale("+struct[pidx]['scale_x']+","+struct[pidx]['scale_y']+")";
 			console.log('common_xform',common_xform);
 		for(var lidx=0;lidx<struct[pidx]['color'].length;lidx++){
+			tmp_viz[pidx].push(true);
+			if(preserve && !me.viz[pidx][lidx])continue;
 			svg.append("path")
 				.attr("d",struct[pidx]['d'])
-				.attr("class","outer")
+				.attr("class",struct[pidx]['class'])//inner, outer ... should be class
 				.style("stroke",struct[pidx]['color'][lidx]).style("fill",struct[pidx]['fill'][lidx]).style("stroke-width",struct[pidx]['stroke-width'][lidx]+"px")
+				.style("stroke-linejoin","round")
 				.attr("transform",common_xform)
-				.style("filter", struct[pidx]['filter_strs'][lidx])
+//				.style("filter", struct[pidx]['filter_strs'][lidx])
+				.style("filter","url(#"+struct[pidx]['fspecs'][lidx]['name']+")")
 				;
 		}}
+
+		if(!preserve){
+			me.pviz=tmp_pviz;
+			me.viz=tmp_viz;
+		}
+
 		console.log('checking whether to add struct');
 		if(me.structs['keys'].indexOf(struct[0]['id'])<0){
 			console.log('adding',struct[0]['id'])
@@ -284,7 +342,6 @@ var NeSVG=function(doneCB){
 			me.struct_idx=me.structs['keys'].indexOf(struct[0]['id']);
 			console.log('me.struct_idx=',me.struct_idx);
 		}
-
 		me.last_struct=struct;
 		me.nesvgInfo();
 	}
@@ -323,7 +380,7 @@ var NeSVG=function(doneCB){
 			}
 		}
 		else{
-			var qtys_with_layers=['color','fill','stroke','stroke-width','f_str','f_rgb','f_sigma'];
+			var qtys_with_layers=['color','fill','stroke','stroke-width',];
 			if(qtys_with_layers.indexOf(e)>-1){
 				console.log('handling layered',e);
 				if(e=='fill' || e=='color' || e=='stroke'){me.last_struct[pidx][e][lidx]=document.getElementById(e).value;}
@@ -338,6 +395,20 @@ var NeSVG=function(doneCB){
 				else if(e=='dx' || e=='dy'){
 					console.log('handling transform',e);
 					me.last_struct[me.current_pidx][e]=parseInt(document.getElementById(e).value);
+				}
+				else if(e=='fname'){
+					me.last_struct[me.current_pidx]['fspecs'][me.current_lidx]['name']=document.getElementById(e).value;
+					console.log('set fname',me.last_struct[me.current_pidx]['fspecs'][me.current_lidx]['name']);
+				}
+				else if(e=='fcolor'){
+					me.last_struct[me.current_pidx]['fspecs'][me.current_lidx]['color']=document.getElementById(e).value;
+					me.last_struct[me.current_pidx]['fspecs'][me.current_lidx]['name']='id_'+1E6*Math.random().toString().slice(0,6);
+					console.log('set color',me.last_struct[me.current_pidx]['fspecs'][me.current_lidx]['name']);
+				}
+				else if(e=='fsigma'){
+					me.last_struct[me.current_pidx]['fspecs'][me.current_lidx]['sigma']=parseInt(document.getElementById(e).value);
+					me.last_struct[me.current_pidx]['fspecs'][me.current_lidx]['name']='id_'+1E6*Math.random().toString().slice(0,6);
+					console.log('set sigma',me.last_struct[me.current_pidx]['fspecs'][me.current_lidx]['name']);
 				}
 				else{
 					me.last_struct[pidx][e]=parseInt(document.getElementById(e).value);
@@ -362,7 +433,7 @@ var NeSVG=function(doneCB){
 
 		var html2="";
 		html2+=me.mkLabel("pidx",me.current_pidx,0);
-		html2+=me.mkLabel("name",me.last_struct[me.current_pidx]['name'],0);
+		html2+=me.mkLabel("class",me.last_struct[me.current_pidx]['class'],0);
 		html2+=me.mkLabel("points",parseInt(me.last_struct[me.current_pidx]['d'].split(" ").length/2),0);
 		html2+=me.mkLabel("layers",me.last_struct[me.current_pidx]['color'].length,0);
 		html2+=me.mkLabel("dx",me.last_struct[me.current_pidx]['dx'],1);
@@ -370,16 +441,35 @@ var NeSVG=function(doneCB){
 		html2+=me.mkLabel("scale_x",me.last_struct[me.current_pidx]['scale_x'],1);
 		html2+=me.mkLabel("scale_y",me.last_struct[me.current_pidx]['scale_y'],1);
 		d3.select("#nesvg_info2").html(html2);
+		if(me.pviz[me.current_pidx]){
+			console.log("path is checked");
+			d3.select("#nesvg_path_checkbox")
+				.attr('src','/static/NeTux/img/checkbox-1.png');
+		}
+		else{
+			console.log("path is unchecked");
+			d3.select("#nesvg_path_checkbox")
+				.attr('src','/static/NeTux/img/checkbox-0.png');
+		}
 
 		var html3="";
 		html3+=me.mkLabel("lidx",me.current_lidx,0);
 		html3+=me.mkLabel("color",me.last_struct[me.current_pidx]['color'][me.current_lidx],1);
 		html3+=me.mkLabel("fill",me.last_struct[me.current_pidx]['fill'][me.current_lidx],1);
 		html3+=me.mkLabel("stroke-width",me.last_struct[me.current_pidx]['stroke-width'][me.current_lidx],1);
-		html3+=me.mkLabel("f_str",me.last_struct[me.current_pidx]['filter_strs'][me.current_lidx],1);
-		html3+=me.mkLabel("f_rgb",me.last_struct[me.current_pidx]['filters'][me.current_lidx].rgb,1);
-		html3+=me.mkLabel("f_sigma",me.last_struct[me.current_pidx]['filters'][me.current_lidx].stdDeviation,1);
+		html3+=me.mkLabel("fname",me.last_struct[me.current_pidx]['fspecs'][me.current_lidx]['name'],1);
+		html3+=me.mkLabel("fcolor",me.last_struct[me.current_pidx]['fspecs'][me.current_lidx]['color'],1);
+		html3+=me.mkLabel("fsigma",me.last_struct[me.current_pidx]['fspecs'][me.current_lidx]['sigma'],1);
 		d3.select("#nesvg_info3").html(html3);
+		if(me.viz[me.current_pidx][me.current_lidx]){
+			console.log("layer is checked");
+			d3.select("#nesvg_layers_checkbox").attr('src','/static/NeTux/img/checkbox-1.png');
+		}
+		else{
+			console.log("layer is unchecked");
+			d3.select("#nesvg_layers_checkbox").attr('src','/static/NeTux/img/checkbox-0.png');
+		}
+
 	}
 
 	return me;
