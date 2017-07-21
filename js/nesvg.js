@@ -89,11 +89,15 @@ var NeSVG=function(doneCB){
 				.style("fill",function(d){return d;})
 				.attr("x", function(d,i) { return dx*(i-NR*parseInt(i/NR) )})
 				.attr("y", function(d,i) { return dx*parseInt(i/NR) })
-				.on("click",function(d){console.log(d);me.current_color=d;})
+				.on("click",function(d){
+					var t=document.getElementById("color2clipboard");
+					t.innerHTML=color_convert.to_hex(d);
+					t.select()
+					document.execCommand("copy");
+				})
 			.append("title")
 				.html(function(d){return color_convert.to_hex(d)+"&#013;"+d;})
 			;
-
 	}
 	me.pick3CB=function(){
 		console.log("nesvg.pick3CB")
@@ -257,13 +261,11 @@ var NeSVG=function(doneCB){
 		}
 		console.log('mkD3',panel_id);
 
-
-		//create single interactive filter:
+		//recreate filters according to fspecs:
 		var nesvg_filters=[];
 		for(var pidx=1;pidx<struct.length;pidx++){
 			for(var sidx=0;sidx<struct[pidx]['fspecs'].length;sidx++){
 				var spec=struct[pidx]['fspecs'][sidx];
-				d3.selectAll("#"+spec['name']).delete;
 				nesvg_filters.push(glow(spec['name']).rgb(spec['color']).stdDeviation(spec['sigma']));
 			}
 		}
@@ -278,15 +280,6 @@ var NeSVG=function(doneCB){
 				svg.call(nesvg_filters[fidx].init);
 			}
 
-/*
-				.call(struct[1]['filters'][0].init)
-				.call(struct[1]['filters'][1].init)
-				.call(struct[1]['filters'][2].init)
-				.call(struct[2]['filters'][0].init)
-				.call(struct[2]['filters'][1].init)
-				.call(struct[2]['filters'][2].init)
-				;
-*/
 			svg.append("rect")
 					.attr("x",0)
 					.attr("y",0)
@@ -318,7 +311,7 @@ var NeSVG=function(doneCB){
 		for(var lidx=0;lidx<struct[pidx]['color'].length;lidx++){
 			tmp_viz[pidx].push(true);
 			if(preserve && !me.viz[pidx][lidx])continue;
-			svg.append("path")
+			var path=svg.append("path")
 				.attr("d",struct[pidx]['d'])
 				.attr("class",struct[pidx]['class'])//inner, outer ... should be class
 				.style("stroke",struct[pidx]['color'][lidx]).style("fill",struct[pidx]['fill'][lidx]).style("stroke-width",struct[pidx]['stroke-width'][lidx]+"px")
@@ -327,6 +320,9 @@ var NeSVG=function(doneCB){
 //				.style("filter", struct[pidx]['filter_strs'][lidx])
 				.style("filter","url(#"+struct[pidx]['fspecs'][lidx]['name']+")")
 				;
+			console.log(path.node().getBBox())
+			console.log(document.getElementById(panel_id.slice(1)).getBoundingClientRect())
+
 		}}
 
 		if(!preserve){
