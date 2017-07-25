@@ -26,7 +26,6 @@ var NeSVG=function(doneCB){
 	}
 
 	me.show=function(){
-		console.log("nesvg.show")
 		window.clearTimeout(window.lastTimeout);
 		d3.select("#nesvg_main").style("display","block");
 		if(me.widget_prefixes.length<1)me.newSequenceCB();
@@ -43,13 +42,7 @@ var NeSVG=function(doneCB){
 		try{
 		if (xhttp.readyState == 4 && (xhttp.status == 200 || xhttp.status == 0)) {
 			//http://forums.mozillazine.org/viewtopic.php?f=25&t=1134615
-			console.log("success importing base.html");
 			document.body.innerHTML+=xhttp.responseText;//base_html
-			console.log("nesvg.appended",xhttp.responseText)
-		}
-		else{
-			console.log("don't load this ... would result in multiple appends");
-//		else document.body.innerHTML+=base_html;
 		}
 		}catch(e){console.log(e)}
 	};
@@ -61,19 +54,16 @@ var NeSVG=function(doneCB){
 	//////////////////////////////
 	cst=new ColorCfg();
 
-//////////////////////////////
 	me.cstCB=function(){
 
 		d3.select("#colorcfg_main").style('display','none');
 
 		var palette=cst.getColorsList();
-		console.log('me.cstCB',palette);
 
 		//swatch_div
 		var N=palette.length;
 		var dx=20;
 		var NR=parseInt(800/dx);
-
 
 		me.swatch_pts.selectAll('.swatch').remove();
 
@@ -100,11 +90,9 @@ var NeSVG=function(doneCB){
 			;
 	}
 	me.pick3CB=function(){
-		console.log("nesvg.pick3CB")
 		cst.show(me.cstCB);
 	}
 	me.codeCB=function(){
-		console.log("nesvg.codeCB");
 		alert(JSON.stringify(me.last_struct));
 	}
 	me.newSequenceCB=function(){
@@ -129,14 +117,12 @@ var NeSVG=function(doneCB){
 		xhttp.open("GET", "/static/NeSVG/js/widget.html", true);//test for localhost? ./static won't work on server.
 		xhttp.send();
 
-		d3.timeout(me.assign_ids,100);//This is a one-time call; replaces _new in class of <pre> html
+		d3.timeout(me.assign_ids,2000);//This is a one-time call; replaces _new in class of <pre> html
 
 	}
 	me.assign_ids=function(){
 		//Trick: select .colorcfg_new, define ids, then remove _new from .className.
 	//		w3.includeHTML();//pity this didn't work in Chroome w/d3 ... w3 couldn't find container1
-
-		console.log('nesvg.assign_ids')
 		var count=0;
 		var common_id_prefix='nesvgctrl_'+parseInt(Math.random()*1E7);
 		me.widget_prefixes.push(common_id_prefix);
@@ -224,21 +210,17 @@ var NeSVG=function(doneCB){
 	me.cycleSVG=function(){
 		me.struct_idx+=1;
 		if(me.struct_idx>=me.structs['keys'].length)me.struct_idx=0;
-		console.log('me.struct_idx',me.struct_idx);
 		var key=me.structs['keys'][me.struct_idx];
-		console.log('loading',key,me.structs['keys']);
 		me.last_struct=me.structs[key];
 		me.mkD3(me.last_struct,"#nesvg_stage",false);
 	}
 	me.cyclePath=function(){
-		console.log('nesvg.cyclePath');
 		me.current_pidx+=1;
 		if(me.current_pidx >= me.last_struct.length)
 			me.current_pidx=1;
 		me.nesvgInfo();
 	}
 	me.cycleLayer=function(){
-		console.log('nesvg.cycleLayer');
 		me.current_lidx+=1;
 		if(me.current_lidx >= me.last_struct[me.current_pidx]['color'].length)
 			me.current_lidx=0;
@@ -259,7 +241,6 @@ var NeSVG=function(doneCB){
 				me.current_pidx=1;
 				me.current_lidx=0;
 		}
-		console.log('mkD3',panel_id);
 
 		//recreate filters according to fspecs:
 		var nesvg_filters=[];
@@ -307,7 +288,6 @@ var NeSVG=function(doneCB){
 			tmp_viz.push([])
 			if(preserve && !me.pviz[pidx])continue;
 			var common_xform="translate("+struct[pidx]['dx']+","+struct[pidx]['dy']+") scale("+struct[pidx]['scale_x']+","+struct[pidx]['scale_y']+")";
-			console.log('common_xform',common_xform);
 		for(var lidx=0;lidx<struct[pidx]['color'].length;lidx++){
 			tmp_viz[pidx].push(true);
 			if(preserve && !me.viz[pidx][lidx])continue;
@@ -320,9 +300,6 @@ var NeSVG=function(doneCB){
 //				.style("filter", struct[pidx]['filter_strs'][lidx])
 				.style("filter","url(#"+struct[pidx]['fspecs'][lidx]['name']+")")
 				;
-			console.log(path.node().getBBox())
-			console.log(document.getElementById(panel_id.slice(1)).getBoundingClientRect())
-
 		}}
 
 		if(!preserve){
@@ -330,13 +307,10 @@ var NeSVG=function(doneCB){
 			me.viz=tmp_viz;
 		}
 
-		console.log('checking whether to add struct');
 		if(me.structs['keys'].indexOf(struct[0]['id'])<0){
-			console.log('adding',struct[0]['id'])
 			me.structs['keys'].push(struct[0]['id']);
 			me.structs[struct[0]['id']]=struct;
 			me.struct_idx=me.structs['keys'].indexOf(struct[0]['id']);
-			console.log('me.struct_idx=',me.struct_idx);
 		}
 		me.last_struct=struct;
 		me.nesvgInfo();
@@ -359,52 +333,41 @@ var NeSVG=function(doneCB){
 		return label_html;
 	}
 	me.labelCB=function(e){
-		console.log('labelCB',document.getElementById(e).value);
 		var pidx=me.current_pidx;
 		var lidx=me.current_lidx;
 		var metafields=['id','width','height','svg_fill'];
 		if(metafields.indexOf(e)>-1){
 			pidx=0;
-			console.log('handling meta',e);
 			if(e=='svg_fill'){
-				console.log('svg_fill',document.getElementById(e).value);
 				me.last_struct[pidx]['fill']=document.getElementById(e).value;
 			}
 			else{
-				console.log(e,document.getElementById(e).value);
 				me.last_struct[pidx][e]=parseInt(document.getElementById(e).value);
 			}
 		}
 		else{
 			var qtys_with_layers=['color','fill','stroke','stroke-width',];
 			if(qtys_with_layers.indexOf(e)>-1){
-				console.log('handling layered',e);
 				if(e=='fill' || e=='color' || e=='stroke'){me.last_struct[pidx][e][lidx]=document.getElementById(e).value;}
 				else {me.last_struct[pidx][e][lidx]=parseInt(document.getElementById(e).value);}
 			}
 			else{
-				console.log('handling non-layered',e);
 				if(e=='scale_x' || e=='scale_y'){
-					console.log('handling scale_x',e);
 					me.last_struct[me.current_pidx][e]=parseFloat(document.getElementById(e).value/100.).toString().slice(0,3);
 				}
 				else if(e=='dx' || e=='dy'){
-					console.log('handling transform',e);
 					me.last_struct[me.current_pidx][e]=parseInt(document.getElementById(e).value);
 				}
 				else if(e=='fname'){
 					me.last_struct[me.current_pidx]['fspecs'][me.current_lidx]['name']=document.getElementById(e).value;
-					console.log('set fname',me.last_struct[me.current_pidx]['fspecs'][me.current_lidx]['name']);
 				}
 				else if(e=='fcolor'){
 					me.last_struct[me.current_pidx]['fspecs'][me.current_lidx]['color']=document.getElementById(e).value;
 					me.last_struct[me.current_pidx]['fspecs'][me.current_lidx]['name']='id_'+1E6*Math.random().toString().slice(0,6);
-					console.log('set color',me.last_struct[me.current_pidx]['fspecs'][me.current_lidx]['name']);
 				}
 				else if(e=='fsigma'){
 					me.last_struct[me.current_pidx]['fspecs'][me.current_lidx]['sigma']=parseInt(document.getElementById(e).value);
 					me.last_struct[me.current_pidx]['fspecs'][me.current_lidx]['name']='id_'+1E6*Math.random().toString().slice(0,6);
-					console.log('set sigma',me.last_struct[me.current_pidx]['fspecs'][me.current_lidx]['name']);
 				}
 				else{
 					me.last_struct[pidx][e]=parseInt(document.getElementById(e).value);
@@ -438,12 +401,10 @@ var NeSVG=function(doneCB){
 		html2+=me.mkLabel("scale_y",me.last_struct[me.current_pidx]['scale_y'],1);
 		d3.select("#nesvg_info2").html(html2);
 		if(me.pviz[me.current_pidx]){
-			console.log("path is checked");
 			d3.select("#nesvg_path_checkbox")
 				.attr('src','/static/NeTux/img/checkbox-1.png');
 		}
 		else{
-			console.log("path is unchecked");
 			d3.select("#nesvg_path_checkbox")
 				.attr('src','/static/NeTux/img/checkbox-0.png');
 		}
@@ -458,11 +419,9 @@ var NeSVG=function(doneCB){
 		html3+=me.mkLabel("fsigma",me.last_struct[me.current_pidx]['fspecs'][me.current_lidx]['sigma'],1);
 		d3.select("#nesvg_info3").html(html3);
 		if(me.viz[me.current_pidx][me.current_lidx]){
-			console.log("layer is checked");
 			d3.select("#nesvg_layers_checkbox").attr('src','/static/NeTux/img/checkbox-1.png');
 		}
 		else{
-			console.log("layer is unchecked");
 			d3.select("#nesvg_layers_checkbox").attr('src','/static/NeTux/img/checkbox-0.png');
 		}
 
